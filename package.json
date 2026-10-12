@@ -1,0 +1,1 @@
+{"name":"deriv-proxy","version":"1.0.0","dependencies":{"ws":"^8.17.0"},"scripts":{"start":"node server.js"}}
