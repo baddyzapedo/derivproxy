@@ -1,32 +1,33 @@
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
-const app = express();
-const server = http.createServer(app);
-const PORT = process.env.PORT || 10000;
+const express=require('express');
+const http=require('http');
+const WebSocket=require('ws');
+const app=express();
+const server=http.createServer(app);
+const PORT=process.env.PORT||10000;
 
-const TARGETS = [
+const TARGETS=[
   'wss://ws.binaryws.com/websockets/v3?app_id=1169',
   'wss://ws.derivws.com/websockets/v3?app_id=1169'
 ];
 
-app.get('/', (req,res)=> res.send('Proxy v4.1 Fixed DoublePath - '+new Date().toISOString()));
-const wss = new WebSocket.Server({ server });
+app.get('/',(req,res)=>res.send('Proxy v4.1 Fixed - '+new Date().toISOString()));
+const wss=new WebSocket.Server({server});
 
-wss.on('connection', (clientWs) => {
+wss.on('connection',(clientWs)=>{
   let idx=0;
   function connectDeriv(){
-    if(idx>=TARGETS.length){ clientWs.close(); return; }
-    const url = TARGETS[idx];
-    console.log('Trying:', url);
-    const derivWs = new WebSocket(url);
-    derivWs.on('open', ()=> console.log('✅ Connected:', url));
-    derivWs.on('message', d=> { if(clientWs.readyState===1) clientWs.send(d); });
-    derivWs.on('close', ()=> { idx++; setTimeout(connectDeriv,1000); });
-    derivWs.on('error', e=> console.log('Error', url, e.message));
-    clientWs.on('message', d=> { if(derivWs.readyState===1) derivWs.send(d); });
-    clientWs.on('close', ()=> { if(derivWs) derivWs.close(); });
+    if(idx>=TARGETS.length){clientWs.close();return;}
+    const url=TARGETS[idx];
+    console.log('Trying:',url);
+    const derivWs=new WebSocket(url);
+    derivWs.on('open',()=>console.log('✅ Connected:',url));
+    derivWs.on('message',d=>{if(clientWs.readyState===1)clientWs.send(d);});
+    derivWs.on('close',()=>{idx++;setTimeout(connectDeriv,1000);});
+    derivWs.on('error',e=>console.log('Error',url,e.message));
+    clientWs.on('message',d=>{if(derivWs.readyState===1)derivWs.send(d);});
+    clientWs.on('close',()=>{if(derivWs)derivWs.close();});
   }
   connectDeriv();
 });
-server.listen(PORT, ()=> console.log('Proxy v4.1 listening on', PORT));
+
+server.listen(PORT,()=>console.log('Proxy v4.1 listening on',PORT));
